@@ -1,16 +1,43 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+set -e
 
-if ! gem list foreman -i --silent; then
-  echo "Installing foreman..."
-  gem install foreman
-fi
+PORT="${PORT:-3000}"
+PIDFILE="tmp/pids/server.pid"
 
-# Default to port 3000 if not specified
-export PORT="${PORT:-3000}"
-
-# Let the debug gem allow remote connections,
-# but avoid loading until `debugger` is called
-export RUBY_DEBUG_OPEN="true"
-export RUBY_DEBUG_LAZY="true"
-
-exec foreman start -f Procfile.dev "$@"
+case "${1:-start}" in
+  start)
+    bin/rails tailwindcss:build
+    echo "Starting server on http://localhost:$PORT"
+    bin/rails server -p "$PORT"
+    ;;
+  bg)
+    bin/rails tailwindcss:build
+    bin/rails server -p "$PORT" -d
+    echo "Server running in background on http://localhost:$PORT (pid: $(cat $PIDFILE))"
+    ;;
+  stop)
+    if [ -f "$PIDFILE" ]; then
+      kill "$(cat $PIDFILE)" 2>/dev/null && echo "Server stopped" || echo "Server not running"
+      rm -f "$PIDFILE"
+    else
+      echo "No server running"
+    fi
+    ;;
+  restart)
+    $0 stop
+    sleep 1
+    $0 start
+    ;;
+  css)
+    bin/rails tailwindcss:build
+    echo "Tailwind CSS rebuilt"
+    ;;
+  *)
+    echo "Usage: bin/dev [start|bg|stop|restart|css]"
+    echo "  start   - Build CSS and start server (default)"
+    echo "  bg      - Build CSS and start server in background"
+    echo "  stop    - Stop background server"
+    echo "  restart - Stop and restart server"
+    echo "  css     - Rebuild Tailwind CSS only"
+    ;;
+esac
