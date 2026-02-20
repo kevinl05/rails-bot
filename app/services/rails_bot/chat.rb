@@ -75,6 +75,12 @@ module RailsBot
       response_text
     end
 
+    def regenerate(user_message)
+      response_text = get_response
+      @conversation.messages.create!(role: "assistant", content: response_text)
+      response_text
+    end
+
     private
 
     def get_response

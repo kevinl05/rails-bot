@@ -3,6 +3,7 @@ Rails.application.routes.draw do
     resources :messages, only: [ :create ] do
       member do
         patch :feedback
+        post :retry
       end
     end
   end

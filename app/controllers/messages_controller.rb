@@ -20,6 +20,25 @@ class MessagesController < ApplicationController
     head :ok
   end
 
+  def retry
+    @conversation = Conversation.find(params[:conversation_id])
+    assistant_message = @conversation.messages.find(params[:id])
+    return head(:unprocessable_entity) unless assistant_message.role == "assistant"
+
+    user_message = @conversation.messages.where(role: "user").where("id < ?", assistant_message.id).order(id: :desc).first
+    return head(:unprocessable_entity) unless user_message
+
+    assistant_message.destroy!
+
+    chat = RailsBot::Chat.new(@conversation)
+    chat.regenerate(user_message.content)
+
+    head :ok
+  rescue StandardError => e
+    @conversation.messages.create!(role: "assistant", content: error_message_for(e))
+    head :ok
+  end
+
   private
 
   def error_message_for(error)

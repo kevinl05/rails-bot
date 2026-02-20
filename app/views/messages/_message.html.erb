@@ -5,12 +5,15 @@
     <% end %>
     <div class="markdown-body text-sm text-gray-200"><%= render_markdown(message.content) %></div>
     <% if message.role == "assistant" %>
-      <div class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-700/50" data-controller="feedback copy" data-feedback-url-value="<%= feedback_conversation_message_path(message.conversation, message) %>" data-feedback-current-value="<%= message.feedback %>">
+      <div class="flex items-center gap-2 mt-2 pt-2 border-t border-gray-700/50" data-controller="feedback copy retry" data-feedback-url-value="<%= feedback_conversation_message_path(message.conversation, message) %>" data-feedback-current-value="<%= message.feedback %>" data-retry-url-value="<%= retry_conversation_message_path(message.conversation, message) %>">
         <button data-action="click->feedback#thumbsDown" data-feedback-target="down" class="p-1 rounded transition-colors <%= message.thumbs_down? ? 'text-red-400' : 'text-gray-600 hover:text-red-400' %>">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
         </button>
         <button data-action="click->feedback#thumbsUp" data-feedback-target="up" class="p-1 rounded transition-colors <%= message.thumbs_up? ? 'text-green-400' : 'text-gray-600 hover:text-green-400' %>">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        </button>
+        <button data-action="click->retry#retry" data-retry-target="button" class="p-1 rounded transition-colors text-gray-600 hover:text-gray-300">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
         </button>
         <button data-action="click->copy#copy" class="p-1 rounded transition-colors text-gray-600 hover:text-gray-300 ml-auto">
           <svg data-copy-target="icon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
