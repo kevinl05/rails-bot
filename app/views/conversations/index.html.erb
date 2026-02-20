@@ -14,14 +14,14 @@
     <% if @conversations.any? %>
       <div class="mt-12 space-y-2">
         <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Recent Conversations</h2>
-        <% @conversations.each do |conversation| %>
-          <%= link_to conversation_path(conversation),
-              class: "block p-4 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors border border-gray-800" do %>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-200"><%= conversation.title %></span>
-              <span class="text-xs text-gray-500"><%= time_ago_in_words(conversation.updated_at) %> ago</span>
-            </div>
-          <% end %>
+        <%= render @conversations %>
+
+        <% if @has_more %>
+          <turbo-frame id="conversations_page_<%= @next_page %>">
+            <%= link_to "Load more", conversations_path(page: @next_page),
+                class: "block text-center py-3 text-sm text-gray-400 hover:text-gray-200 transition-colors",
+                data: { turbo_frame: "conversations_page_#{@next_page}" } %>
+          </turbo-frame>
         <% end %>
       </div>
     <% end %>

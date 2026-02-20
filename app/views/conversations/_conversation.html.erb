@@ -1,0 +1,7 @@
+<%= link_to conversation_path(conversation),
+    class: "block p-4 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors border border-gray-800" do %>
+  <div class="flex justify-between items-center">
+    <span class="text-gray-200"><%= conversation.title %></span>
+    <span class="text-xs text-gray-500"><%= time_ago_in_words(conversation.updated_at) %> ago</span>
+  </div>
+<% end %>

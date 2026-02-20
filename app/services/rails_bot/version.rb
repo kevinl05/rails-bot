@@ -1,7 +1,7 @@
 module RailsBot
   class Version
-    STRING = "0.3.0"
-    LAST_UPDATED = Time.utc(2026, 2, 20, 22, 0)
-    CHANGELOG = "Local timezone support, retry responses, Anthropic fallback"
+    STRING = "0.3.1"
+    LAST_UPDATED = Time.utc(2026, 2, 20, 23, 0)
+    CHANGELOG = "Load more pagination for conversations list"
   end
 end

@@ -1,0 +1,11 @@
+<turbo-frame id="conversations_page_<%= page %>">
+  <%= render conversations %>
+
+  <% if has_more %>
+    <turbo-frame id="conversations_page_<%= next_page %>">
+      <%= link_to "Load more", conversations_path(page: next_page),
+          class: "block text-center py-3 text-sm text-gray-400 hover:text-gray-200 transition-colors",
+          data: { turbo_frame: "conversations_page_#{next_page}" } %>
+    </turbo-frame>
+  <% end %>
+</turbo-frame>
