@@ -78,6 +78,13 @@ module RailsBot
     private
 
     def get_response
+      gemini_response
+    rescue StandardError => e
+      Rails.logger.warn("Gemini failed (#{e.message}), falling back to Anthropic")
+      anthropic_response
+    end
+
+    def gemini_response
       uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=#{ENV.fetch('GEMINI_API_KEY')}")
 
       messages = conversation_messages.map do |msg|
@@ -94,7 +101,25 @@ module RailsBot
       }
 
       parsed = gemini_request(uri, body)
-      parsed.dig("candidates", 0, "content", "parts", 0, "text") || "I seem to have lost my `render` call somewhere..."
+      parsed.dig("candidates", 0, "content", "parts", 0, "text") || raise("Empty Gemini response")
+    end
+
+    def anthropic_response
+      client = Anthropic::Client.new(api_key: ENV.fetch("ANTHROPIC_API_KEY"))
+
+      messages = conversation_messages.map do |msg|
+        { role: msg[:role], content: msg[:content] }
+      end
+
+      response = client.messages.create(
+        model: "claude-sonnet-4-20250514",
+        max_tokens: MAX_TOKENS,
+        system_: system_prompt,
+        messages: messages,
+        temperature: TEMPERATURE
+      )
+
+      response.content.first.text
     end
 
     def conversation_messages
@@ -118,20 +143,40 @@ module RailsBot
       return unless @conversation.title == "New Conversation" && @conversation.messages.count == 2
 
       Thread.new do
-        uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=#{ENV.fetch('GEMINI_API_KEY')}")
-
-        body = {
-          system_instruction: { parts: [{ text: "Generate a very short (3-5 word) title for a conversation that starts with this message. Return ONLY the title, nothing else." }] },
-          contents: [{ role: "user", parts: [{ text: user_message }] }],
-          generationConfig: { maxOutputTokens: 256 }
-        }
-
-        parsed = gemini_request(uri, body)
-        title = parsed.dig("candidates", 0, "content", "parts", 0, "text")&.strip&.gsub(/["']/, "")
-        @conversation.update(title: title) if title.present?
+        generate_title_gemini(user_message)
+      rescue StandardError
+        generate_title_anthropic(user_message)
       rescue => e
         Rails.logger.warn("Title generation failed: #{e.message}")
       end
+    end
+
+    def generate_title_gemini(user_message)
+      uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=#{ENV.fetch('GEMINI_API_KEY')}")
+
+      body = {
+        system_instruction: { parts: [{ text: "Generate a very short (3-5 word) title for a conversation that starts with this message. Return ONLY the title, nothing else." }] },
+        contents: [{ role: "user", parts: [{ text: user_message }] }],
+        generationConfig: { maxOutputTokens: 256 }
+      }
+
+      parsed = gemini_request(uri, body)
+      title = parsed.dig("candidates", 0, "content", "parts", 0, "text")&.strip&.gsub(/["']/, "")
+      @conversation.update(title: title) if title.present?
+    end
+
+    def generate_title_anthropic(user_message)
+      client = Anthropic::Client.new(api_key: ENV.fetch("ANTHROPIC_API_KEY"))
+
+      response = client.messages.create(
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 30,
+        system_: "Generate a very short (3-5 word) title for a conversation that starts with this message. Return ONLY the title, nothing else.",
+        messages: [{ role: "user", content: user_message }]
+      )
+
+      title = response.content.first.text.strip.gsub(/["']/, "")
+      @conversation.update(title: title) if title.present?
     end
 
     def gemini_request(uri, body)
