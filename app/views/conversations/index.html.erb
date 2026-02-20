@@ -1,0 +1,29 @@
+<div class="flex flex-col items-center justify-center min-h-screen px-4">
+  <div class="max-w-2xl w-full text-center space-y-8">
+    <div class="space-y-4">
+      <h1 class="text-6xl font-bold tracking-tight">
+        <span class="text-red-500">Rails</span>Bot
+      </h1>
+      <p class="text-xl text-gray-400">Talk to Ruby on Rails itself.</p>
+      <p class="text-sm text-gray-500">Powered by convention over configuration since 2004.</p>
+    </div>
+
+    <%= button_to "New Conversation", conversations_path, method: :post,
+        class: "bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors cursor-pointer" %>
+
+    <% if @conversations.any? %>
+      <div class="mt-12 space-y-2">
+        <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4">Recent Conversations</h2>
+        <% @conversations.each do |conversation| %>
+          <%= link_to conversation_path(conversation),
+              class: "block p-4 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors border border-gray-800" do %>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-200"><%= conversation.title %></span>
+              <span class="text-xs text-gray-500"><%= time_ago_in_words(conversation.updated_at) %> ago</span>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>
