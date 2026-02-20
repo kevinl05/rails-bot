@@ -1,5 +1,5 @@
 class ConversationsController < ApplicationController
-  PER_PAGE = 15
+  PER_PAGE = 5
 
   def index
     page = [ params.fetch(:page, 1).to_i, 1 ].max
@@ -15,6 +15,9 @@ class ConversationsController < ApplicationController
     end
   end
 
+  def new
+  end
+
   def show
     @conversation = Conversation.find(params[:id])
     @messages = @conversation.messages.ordered
@@ -22,7 +25,21 @@ class ConversationsController < ApplicationController
 
   def create
     conversation = Conversation.create!
-    redirect_to conversation
+    content = params.dig(:message, :content)
+
+    if content.present?
+      begin
+        chat = RailsBot::Chat.new(conversation)
+        chat.call(content)
+      rescue StandardError => e
+        conversation.messages.create!(role: "assistant", content: error_message_for(e))
+      end
+    end
+
+    respond_to do |format|
+      format.json { render json: { redirect_to: conversation_path(conversation) } }
+      format.html { redirect_to conversation }
+    end
   end
 
   def destroy

@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["input", "submit"]
+  static values = { newConversation: { type: Boolean, default: false } }
 
   submitMessage(event) {
     event.preventDefault()
@@ -46,20 +47,28 @@ export default class extends Controller {
     const formData = new FormData()
     formData.append("message[content]", content)
 
+    const isNew = this.newConversationValue
+    const headers = {
+      "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+      "Accept": isNew ? "application/json" : "text/vnd.turbo-stream.html"
+    }
+
     fetch(form.action, {
       method: "POST",
-      headers: {
-        "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
-        "Accept": "text/vnd.turbo-stream.html"
-      },
+      headers,
       body: formData
-    }).then(() => {
+    }).then(response => {
+      if (isNew) {
+        return response.json().then(data => {
+          Turbo.visit(data.redirect_to)
+        })
+      }
       // Remove thinking indicator (the broadcast will add the real message)
       const indicator = document.getElementById("thinking-indicator")
       if (indicator) indicator.remove()
       this.submitTarget.disabled = false
       this.inputTarget.focus()
-    }).catch((error) => {
+    }).catch(() => {
       const indicator = document.getElementById("thinking-indicator")
       if (indicator) {
         indicator.innerHTML = `

@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  resources :conversations, only: [ :index, :show, :create, :destroy ] do
+  resources :conversations, only: [ :index, :new, :show, :create, :destroy ] do
     resources :messages, only: [ :create ] do
       member do
         patch :feedback

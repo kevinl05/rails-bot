@@ -1,0 +1,45 @@
+<div class="flex flex-col h-screen">
+  <%# Header %>
+  <header class="flex items-center justify-between px-6 py-3 bg-gray-900 border-b border-gray-800 shrink-0">
+    <div class="flex items-center gap-4">
+      <%= link_to conversations_path, class: "text-gray-400 hover:text-white transition-colors" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+        </svg>
+      <% end %>
+      <h1 class="text-lg font-semibold">
+        <span class="text-red-500">Rails</span>Bot
+        <span class="text-gray-500 text-sm font-normal ml-2">New conversation</span>
+      </h1>
+    </div>
+  </header>
+
+  <%# Messages %>
+  <div id="messages-container" class="flex-1 overflow-y-auto px-4 py-6 space-y-6" data-controller="scroll">
+    <div id="messages" class="max-w-3xl mx-auto space-y-6">
+    </div>
+  </div>
+
+  <%# Input %>
+  <div class="shrink-0 border-t border-gray-800 bg-gray-900 px-4 py-4">
+    <div class="max-w-3xl mx-auto">
+      <%= form_with url: conversations_path, method: :post,
+          data: { controller: "chat", action: "submit->chat#submitMessage", chat_new_conversation_value: true },
+          class: "flex gap-3 items-end" do |f| %>
+        <div class="flex-1">
+          <textarea name="message[content]" rows="1" placeholder="Talk to Rails..."
+            data-chat-target="input"
+            data-action="keydown->chat#handleKeydown input->chat#autoResize"
+            class="w-full bg-gray-800 text-gray-100 rounded-lg px-4 py-3 resize-none border border-gray-700 focus:border-red-500 focus:ring-1 focus:ring-red-500 focus:outline-none placeholder-gray-500"
+            style="max-height: 200px;"></textarea>
+        </div>
+        <button type="submit" data-chat-target="submit"
+          class="bg-red-600 hover:bg-red-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-white p-3 rounded-lg transition-colors cursor-pointer shrink-0">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>
