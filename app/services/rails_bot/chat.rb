@@ -123,7 +123,7 @@ module RailsBot
         body = {
           system_instruction: { parts: [{ text: "Generate a very short (3-5 word) title for a conversation that starts with this message. Return ONLY the title, nothing else." }] },
           contents: [{ role: "user", parts: [{ text: user_message }] }],
-          generationConfig: { maxOutputTokens: 20 }
+          generationConfig: { maxOutputTokens: 256 }
         }
 
         parsed = gemini_request(uri, body)
