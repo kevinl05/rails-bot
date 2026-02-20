@@ -29,7 +29,7 @@
 
   <footer class="mt-16 mb-8 text-center space-y-1">
     <p class="text-sm text-gray-500">Made with <span class="text-red-500">&hearts;</span> and <code class="text-gray-400">bundler</code></p>
-    <p class="text-xs text-gray-600">v<%= RailsBot::VERSION %> &middot; Updated <%= time_ago_in_words(RailsBot::LAST_UPDATED) %> ago</p>
-    <p class="text-xs text-gray-700">Latest Fix: <%= RailsBot::CHANGELOG %></p>
+    <p class="text-xs text-gray-600">v<%= RailsBot::Version::STRING %> &middot; Updated <%= time_ago_in_words(RailsBot::Version::LAST_UPDATED) %> ago</p>
+    <p class="text-xs text-gray-700">Latest Fix: <%= RailsBot::Version::CHANGELOG %></p>
   </footer>
 </div>

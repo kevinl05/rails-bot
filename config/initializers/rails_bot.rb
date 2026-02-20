@@ -1,1 +1,1 @@
-require_relative "../../app/services/rails_bot/version"
+# Version constants are autoloaded via RailsBot::Version
